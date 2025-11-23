@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Anxiété - Pass Anxiété Numérique</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #4CAF50 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50 0%, #2c5aa0 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .question-container {
+            padding: 40px;
+        }
+        
+        .question {
+            display: none;
+        }
+        
+        .question.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .question-number {
+            color: #2c5aa0;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .option:hover {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            background: #e3f2fd;
+            border-color: #2c5aa0;
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.2);
+        }
+        
+        .option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #2c5aa0;
+        }
+        
+        .option label {
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            flex: 1;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 35px;
+            justify-content: space-between;
+        }
+        
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-prev {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .btn-prev:hover {
+            background: #d0d0d0;
+        }
+        
+        .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, #2c5aa0 0%, #4CAF50 100%);
+            color: white;
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 90, 160, 0.4);
+        }
+        
+        .btn-next:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            display: none;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .results.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .results h2 {
+            font-size: 32px;
+            color: #2c5aa0;
+            margin-bottom: 20px;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            margin: 30px auto;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        
+        .level-mild { background: #c8e6c9; color: #2e7d32; }
+        .level-moderate { background: #fff9c4; color: #f57f17; }
+        .level-high { background: #ffccbc; color: #d84315; }
+        .level-severe { background: #ffcdd2; color: #c62828; }
+        
+        .results p {
+            font-size: 18px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .email-capture {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .email-capture h3 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .email-capture input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        
+        .email-capture input:focus {
+            outline: none;
+            border-color: #2c5aa0;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50 0%, #2c5aa0 100%);
+            color: white;
+            padding: 18px;
+            font-size: 18px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 { font-size: 24px; }
+            .question h2 { font-size: 18px; }
+            .option { padding: 15px; }
+            .option label { font-size: 15px; }
+            .buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧘 Test d'Anxiété</h1>
+            <p>Réponds honnêtement aux 10 questions suivantes</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Question 1 sur 10</div>
+        
+        <div class="question-container">
+            <form id="quizForm">
+                <!-- Question 1 -->
+                <div class="question active" data-question="1">
+                    <span class="question-number">QUESTION 1/10</span>
+                    <h2>À quelle fréquence te sens-tu anxieux(se) ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q1" id="q1a" value="1" required>
+                            <label for="q1a">Rarement (quelques fois par mois)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" id="q1b" value="2">
+                            <label for="q1b">Parfois (1-2 fois par semaine)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" id="q1c" value="3">
+                            <label for="q1c">Souvent (presque tous les jours)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" id="q1d" value="4">
+                            <label for="q1d">Presque tout le temps (plusieurs fois par jour)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="question" data-question="2">
+                    <span class="question-number">QUESTION 2/10</span>
+                    <h2>Ton anxiété t'empêche-t-elle de faire des activités quotidiennes ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q2" id="q2a" value="1" required>
+                            <label for="q2a">Jamais, je fais tout normalement</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" id="q2b" value="2">
+                            <label for="q2b">Rarement, quelques difficultés mineures</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" id="q2c" value="3">
+                            <label for="q2c">Souvent, je dois parfois éviter certaines choses</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" id="q2d" value="4">
+                            <label for="q2d">Très souvent, ça limite beaucoup ma vie</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="question" data-question="3">
+                    <span class="question-number">QUESTION 3/10</span>
+                    <h2>As-tu des symptômes physiques ? (palpitations, sueurs, tremblements)</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q3" id="q3a" value="1" required>
+                            <label for="q3a">Non, aucun symptôme physique</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" id="q3b" value="2">
+                            <label for="q3b">Légers (à peine perceptibles)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" id="q3c" value="3">
+                            <label for="q3c">Modérés (gênants mais supportables)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" id="q3d" value="4">
+                            <label for="q3d">Intenses (très difficiles à supporter)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="question" data-question="4">
+                    <span class="question-number">QUESTION 4/10</span>
+                    <h2>As-tu des pensées négatives envahissantes ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q4" id="q4a" value="1" required>
+                            <label for="q4a">Rarement, je pense positivement en général</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" id="q4b" value="2">
+                            <label for="q4b">Parfois, quelques pensées négatives occasionnelles</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" id="q4c" value="3">
+                            <label for="q4c">Souvent, des ruminations fréquentes</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" id="q4d" value="4">
+                            <label for="q4d">Constamment, c'est difficile de penser à autre chose</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="question" data-question="5">
+                    <span class="question-number">QUESTION 5/10</span>
+                    <h2>Comment est ton sommeil ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q5" id="q5a" value="1" required>
+                            <label for="q5a">Bon, je dors bien et me réveille reposé(e)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" id="q5b" value="2">
+                            <label for="q5b">Correct, quelques difficultés d'endormissement</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" id="q5c" value="3">
+                            <label for="q5c">Difficile, réveils nocturnes fréquents</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" id="q5d" value="4">
+                            <label for="q5d">Très mauvais, insomnie régulière</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="question" data-question="6">
+                    <span class="question-number">QUESTION 6/10</span>
+                    <h2>Évites-tu des situations par peur ou anxiété ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q6" id="q6a" value="1" required>
+                            <label for="q6a">Non, je fais tout ce que je veux</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q6" id="q6b" value="2">
+                            <label for="q6b">Rarement, 1-2 situations spécifiques</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q6" id="q6c" value="3">
+                            <label for="q6c">Souvent, plusieurs types de situations</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q6" id="q6d" value="4">
+                            <label for="q6d">Systématiquement, beaucoup de situations</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 7 -->
+                <div class="question" data-question="7">
+                    <span class="question-number">QUESTION 7/10</span>
+                    <h2>As-tu déjà eu des attaques de panique ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q7" id="q7a" value="1" required>
+                            <label for="q7a">Jamais</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q7" id="q7b" value="2">
+                            <label for="q7b">1-2 fois dans ma vie</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q7" id="q7c" value="3">
+                            <label for="q7c">Plusieurs fois (3-10 fois)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q7" id="q7d" value="4">
+                            <label for="q7d">Fréquemment (plusieurs fois par mois)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 8 -->
+                <div class="question" data-question="8">
+                    <span class="question-number">QUESTION 8/10</span>
+                    <h2>Ton entourage remarque-t-il ton anxiété ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q8" id="q8a" value="1" required>
+                            <label for="q8a">Non, personne ne remarque rien</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q8" id="q8b" value="2">
+                            <label for="q8b">Un peu, quelques proches l'ont remarqué</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q8" id="q8c" value="3">
+                            <label for="q8c">Oui, mon entourage proche le sait</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q8" id="q8d" value="4">
+                            <label for="q8d">Beaucoup, tout le monde le remarque</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 9 -->
+                <div class="question" data-question="9">
+                    <span class="question-number">QUESTION 9/10</span>
+                    <h2>Consommes-tu des substances pour gérer ton anxiété ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q9" id="q9a" value="1" required>
+                            <label for="q9a">Non, jamais</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q9" id="q9b" value="2">
+                            <label for="q9b">Rarement (occasions exceptionnelles)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q9" id="q9c" value="3">
+                            <label for="q9c">Régulièrement (1-2 fois par semaine)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q9" id="q9d" value="4">
+                            <label for="q9d">Quotidiennement (presque tous les jours)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 10 -->
+                <div class="question" data-question="10">
+                    <span class="question-number">QUESTION 10/10</span>
+                    <h2>Comment évalues-tu ta qualité de vie actuelle ?</h2>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q10" id="q10a" value="1" required>
+                            <label for="q10a">Bonne, je suis globalement satisfait(e)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q10" id="q10b" value="2">
+                            <label for="q10b">Correcte, il y a quelques difficultés</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q10" id="q10c" value="3">
+                            <label for="q10c">Difficile, je souffre au quotidien</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q10" id="q10d" value="4">
+                            <label for="q10d">Très mauvaise, c'est très dur</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button type="button" class="btn-prev" id="prevBtn" disabled>← Précédent</button>
+                    <button type="button" class="btn-next" id="nextBtn">Suivant →</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Section Résultats -->
+        <div class="results" id="results">
+            <h2>Ton Résultat</h2>
+            <div class="score-circle" id="scoreDisplay">0</div>
+            <div class="level-badge" id="levelBadge">Niveau</div>
+            <p id="interpretation"></p>
+            
+            <div class="email-capture">
+                <h3>📧 Reçois Ton Plan d'Action Personnalisé</h3>
+                <p style="font-size: 16px; color: #666;">Basé sur ton score, je t'envoie des techniques immédiates adaptées à ta situation.</p>
+                <form id="emailForm">
+                    <input type="text" id="firstName" placeholder="Ton prénom" required>
+                    <input type="email" id="email" placeholder="Ton email" required>
+                    <input type="hidden" id="scoreValue">
+                    <input type="hidden" id="levelValue">
+                    <button type="submit" class="btn-submit">📧 RECEVOIR MON PLAN D'ACTION</button>
+                </form>
+                <p style="font-size: 13px; color: #999; margin-top: 10px;">🔒 Analyse confidentielle. Pas de spam.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 10;
+        let answers = {};
+
+        // Gestion de la sélection des options
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const questionDiv = this.closest('.question');
+                
+                // Désélectionner toutes les options de cette question
+                questionDiv.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Sélectionner l'option cliquée
+                this.classList.add('selected');
+                radio.checked = true;
+                
+                // Activer le bouton suivant
+                document.getElementById('nextBtn').disabled = false;
+            });
+        });
+
+        // Bouton Suivant
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            const currentQ = document.querySelector('.question.active');
+            const selectedRadio = currentQ.querySelector('input[type="radio"]:checked');
+            
+            if (!selectedRadio) {
+                alert('Merci de sélectionner une réponse');
+                return;
+            }
+            
+            // Sauvegarder la réponse
+            const questionName = selectedRadio.name;
+            answers[questionName] = parseInt(selectedRadio.value);
+            
+            if (currentQuestion < totalQuestions) {
+                // Passer à la question suivante
+                currentQ.classList.remove('active');
+                currentQuestion++;
+                document.querySelector(`[data-question="${currentQuestion}"]`).classList.add('active');
+                
+                // Mettre à jour la barre de progression
+                updateProgress();
+                
+                // Activer/désactiver les boutons
+                document.getElementById('prevBtn').disabled = false;
+                
+                // Vérifier si la prochaine question a déjà une réponse
+                const nextQ = document.querySelector('.question.active');
+                const nextSelected = nextQ.querySelector('input[type="radio"]:checked');
+                document.getElementById('nextBtn').disabled = !nextSelected;
+                
+                // Changer le texte du dernier bouton
+                if (currentQuestion === totalQuestions) {
+                    document.getElementById('nextBtn').textContent = 'Voir Mon Résultat →';
+                }
+            } else {
+                // Calculer et afficher les résultats
+                calculateResults();
+            }
+        });
+
+        // Bouton Précédent
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentQuestion > 1) {
+                document.querySelector('.question.active').classList.remove('active');
+                currentQuestion--;
+                document.querySelector(`[data-question="${currentQuestion}"]`).classList.add('active');
+                
+                updateProgress();
+                
+                if (currentQuestion === 1) {
+                    this.disabled = true;
+                }
+                
+                // Vérifier si la question affichée a une réponse
+                const currentQ = document.querySelector('.question.active');
+                const selectedRadio = currentQ.querySelector('input[type="radio"]:checked');
+                document.getElementById('nextBtn').disabled = !selectedRadio;
+                document.getElementById('nextBtn').textContent = 'Suivant →';
+            }
+        });
+
+        // Mettre à jour la barre de progression
+        function updateProgress() {
+            const progress = (currentQuestion / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentQuestion} sur ${totalQuestions}`;
+        }
+
+        // Calculer les résultats
+        function calculateResults() {
+            const score = Object.values(answers).reduce((a, b) => a + b, 0);
+            
+            let level, levelClass, interpretation;
+            
+            if (score >= 10 && score <= 16) {
+                level = "Anxiété Légère 🟢";
+                levelClass = "level-mild";
+                interpretation = "Ton niveau d'anxiété est léger. Tu ressens parfois de l'anxiété, mais elle ne perturbe pas significativement ta vie quotidienne. Quelques techniques simples peuvent t'aider à maintenir cet équilibre et à prévenir une éventuelle augmentation.";
+            } else if (score >= 17 && score <= 25) {
+                level = "Anxiété Modérée 🟡";
+                levelClass = "level-moderate";
+                interpretation = "Ton niveau d'anxiété est modéré. L'anxiété commence à impacter certains aspects de ta vie quotidienne. Il est important d'agir maintenant avec des outils concrets pour éviter que cela ne s'aggrave. L'hypnose et les techniques de gestion émotionnelle peuvent vraiment t'aider.";
+            } else if (score >= 26 && score <= 32) {
+                level = "Anxiété Élevée 🟠";
+                levelClass = "level-high";
+                interpretation = "Ton niveau d'anxiété est élevé. L'anxiété a un impact significatif sur ta vie quotidienne et ton bien-être. Il est essentiel de mettre en place un accompagnement adapté. Les techniques d'hypnose, EMDR et TCC peuvent t'aider à reprendre le contrôle progressivement.";
+            } else {
+                level = "Anxiété Sévère 🔴";
+                levelClass = "level-severe";
+                interpretation = "Ton niveau d'anxiété est sévère. L'anxiété affecte profondément ta qualité de vie. Je te recommande vivement de consulter un professionnel de santé (médecin, psychologue) en plus d'utiliser les outils que je propose. L'accompagnement complet est crucial pour ton bien-être.";
+            }
+            
+            // Afficher les résultats
+            document.querySelector('.question-container').style.display = 'none';
+            document.getElementById('results').classList.add('active');
+            
+            // Animer le score
+            let currentScore = 0;
+            const scoreInterval = setInterval(() => {
+                if (currentScore <= score) {
+                    document.getElementById('scoreDisplay').textContent = currentScore;
+                    currentScore++;
+                } else {
+                    clearInterval(scoreInterval);
+                }
+            }, 30);
+            
+            document.getElementById('levelBadge').textContent = level;
+            document.getElementById('levelBadge').className = 'level-badge ' + levelClass;
+            document.getElementById('interpretation').textContent = interpretation;
+            
+            // Préremplir les champs cachés
+            document.getElementById('scoreValue').value = score;
+            document.getElementById('levelValue').value = level;
+            
+            // Scroll vers le haut
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Soumission du formulaire email
+        document.getElementById('emailForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const email = document.getElementById('email').value;
+            const score = document.getElementById('scoreValue').value;
+            const level = document.getElementById('levelValue').value;
+            
+            // ICI : Intégrer avec Systeme.io
+            // Tu devras remplacer cette URL par ton webhook Systeme.io
+            // ou utiliser leur API pour capturer l'email + score
+            
+            // Pour l'instant, on redirige vers la page d'offre avec les paramètres
+            window.location.href = `/page-offre?score=${score}&level=${encodeURIComponent(level)}&firstName=${encodeURIComponent(firstName)}&email=${encodeURIComponent(email)}`;
+        });
+
+        // Initialiser la progression
+        updateProgress();
+    </script>
+</body>
+</html>
